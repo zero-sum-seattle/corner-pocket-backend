@@ -32,7 +32,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - .:/app
+      - .:/corner-pocket-backend
     command: poetry run uvicorn corner_pocket_backend.main:corner_pocket_backend --host 0.0.0.0 --port 8000 --reload
 
 volumes:
