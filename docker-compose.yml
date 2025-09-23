@@ -9,5 +9,31 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cp -d cornerpocket"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=dev
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=cornerpocket
+      - DB_USER=cp
+      - DB_PASSWORD=changeme
+      - JWT_SECRET=dev_secret_change_in_prod
+      - CORS_ORIGINS=http://localhost:19006,http://localhost:8081
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: poetry run uvicorn corner_pocket_backend.main:corner_pocket_backend --host 0.0.0.0 --port 8000 --reload
+
 volumes:
   pgdata:
