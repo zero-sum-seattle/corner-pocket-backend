@@ -1,0 +1,32 @@
+name: backend-ci
+on:
+  push:
+    paths:
+      - "corner_pocket_backend/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/ci.yml"
+  pull_request:
+      - "corner_pocket_backend/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pip install poetry==1.8.3
+      - name: Install deps
+        run: poetry install
+      - name: Ruff
+        run: poetry run ruff check .
+      - name: Mypy
+        run: poetry run mypy corner_pocket_backend
+      - name: Tests
+        run: poetry run pytest -q
