@@ -8,5 +8,10 @@ router = APIRouter()
 
 @router.get("/stats/summary")
 def summary(user_id: Optional[str] = Query(None), user=Depends(get_current_user)):
+    """Return a simple summary of results for a user.
+
+    Defaults to the current user. Another user's id may be supplied by query
+    for administrative/preview purposes.
+    """
     target = user_id or user.id
     return StatsService().summary(user_id=target)

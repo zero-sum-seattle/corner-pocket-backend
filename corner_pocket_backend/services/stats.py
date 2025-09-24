@@ -2,7 +2,15 @@ from collections import Counter
 from .matches import MATCHES, GAMES
 
 class StatsService:
+    """Aggregate basic statistics for users from in-memory match data."""
+
     def summary(self, user_id: str):
+        """Compute a naive score differential by game type for a user.
+
+        Counts wins and losses across approved matches and returns a per-game
+        type score differential (wins minus losses). Intended as a placeholder
+        until real analytics are implemented.
+        """
         by_type = Counter()
         for m in MATCHES.values():
             if m["status"] != "APPROVED":
