@@ -15,7 +15,10 @@ class StatsService:
         for m in MATCHES.values():
             if m["status"] != "APPROVED":
                 continue
-            # naive: count wins as all games with user as winner
+            # BUG: This counts games from ALL matches, even ones the user didn't play in.
+            # Should filter to matches where user_id is creator or opponent first.
+            # Also, losses should only count games where opponent won, not "anyone != user".
+            # Will fix when we replace this with proper DB queries.
             wins = sum(1 for g in GAMES.get(m["id"], []) if g.get("winner_user_id") == user_id)
             losses = sum(1 for g in GAMES.get(m["id"], []) if g.get("winner_user_id") != user_id)
             t = m["game_type"]
