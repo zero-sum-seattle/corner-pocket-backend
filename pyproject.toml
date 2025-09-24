@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "corner-pocket-backend"
+version = "0.1.0"
+description = "Corner-Pocket backend (FastAPI + Postgres)"
+authors = ["Matthew Spah <spahmatthew@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "corner_pocket_backend" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+uvicorn = {version="^0.30.0", extras=["standard"]}
+pydantic-settings = "^2.4.0"
+sqlalchemy = "^2.0.30"
+alembic = "^1.13.2"
+psycopg2-binary = "^2.9.9"
+python-jose = "^3.3.0"
+passlib = {version="^1.7.4", extras=["bcrypt"]}
+argon2-cffi = "^23.1.0"
+python-multipart = "^0.0.9"
+email-validator = "^2.1.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^0.23.6"
+httpx = "^0.27.0"
+ruff = "^0.6.7"
+mypy = "^1.11.0"
+types-python-jose = "^3.3.4.20240106"
+types-passlib = "^1.7.7.20240819"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
