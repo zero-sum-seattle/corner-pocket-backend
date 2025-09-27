@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, SQLEnum as SQLAlchemyEnum
 from sqlalchemy.orm import sessionmaker
 from corner_pocket_backend.models import Base, User, Match, MatchStatus
 
@@ -75,10 +75,9 @@ def test_match_relationships(db_session, sample_users):
 def test_match_status_enum():
     """Test that MatchStatus enum has the expected values."""
     assert MatchStatus.PENDING == "PENDING"
-    assert MatchStatus.SUBMITTED == "SUBMITTED"
     assert MatchStatus.APPROVED == "APPROVED"
     assert MatchStatus.DECLINED == "DECLINED"
-
+    assert MatchStatus.CANCELLED == "CANCELLED"
 
 def test_match_foreign_key_constraints(db_session):
     """Test that foreign key constraints work."""
@@ -111,3 +110,34 @@ def test_user_cannot_play_themselves(db_session, sample_users):
     
     # Business logic should prevent this in the service layer
     assert match.creator_id == match.opponent_id  # Shows the issue exists
+
+
+def test_match_status_defaults_to_pending(db_session, sample_users):
+    """Match.status should default to PENDING when not provided."""
+    creator, opponent = sample_users
+
+    match = Match(
+        creator_id=creator.id,
+        opponent_id=opponent.id,
+    )
+
+    db_session.add(match)
+    db_session.commit()
+
+    assert match.status == MatchStatus.PENDING
+
+
+def test_match_status_can_be_set_explicitly(db_session, sample_users):
+    """Match.status can be set explicitly and should persist that value."""
+    creator, opponent = sample_users
+
+    match = Match(
+        creator_id=creator.id,
+        opponent_id=opponent.id,
+        status=MatchStatus.DECLINED,
+    )
+
+    db_session.add(match)
+    db_session.commit()
+
+    assert match.status == MatchStatus.DECLINED

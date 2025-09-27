@@ -69,3 +69,11 @@ def test_user_required_fields(db_session):
     
     with pytest.raises(Exception):
         db_session.commit()
+
+
+def test_user_handle_required(db_session):
+    """Test that handle is required (cannot be None)."""
+    user = User(email="nohandle@test.com")
+    db_session.add(user)
+    with pytest.raises(Exception):
+        db_session.commit()
