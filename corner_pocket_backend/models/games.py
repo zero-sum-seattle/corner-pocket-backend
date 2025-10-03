@@ -34,5 +34,6 @@ class Game(Base):
     winner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Who sank the money ball
     loser_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Who got schooled
     created_at = Column(DateTime, default=datetime.utcnow)  # When this rack was completed
+    frame_number = Column(Integer, nullable=True)  # Which frame this is (can be added later)
 
     match = relationship("Match", back_populates="games")

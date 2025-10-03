@@ -9,11 +9,11 @@ class TestGamesDbService:
 
     def seed_users_and_match(self, session):
         """Seed a user and a match."""
-        a = User(email="a@test.com", handle="a")
-        b = User(email="b@test.com", handle="b")
+        a = User(email="a@test.com", handle="a", display_name="A")
+        b = User(email="b@test.com", handle="b", display_name="B")
         session.add_all([a, b])
         session.commit()
-        m = Match(creator_id=a.id, opponent_id=b.id)
+        m = Match(creator_id=a.id, opponent_id=b.id, game_type=GameType.EIGHT_BALL, race_to=5)
         session.add(m)
         session.commit()
         return a, b, m

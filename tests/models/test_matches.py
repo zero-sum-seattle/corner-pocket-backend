@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from corner_pocket_backend.models import Base, User, Match, MatchStatus
+from corner_pocket_backend.models import Base, User, Match, MatchStatus, GameType
 
 
 @pytest.fixture
@@ -28,8 +28,8 @@ def db_session():
 @pytest.fixture
 def sample_users(db_session):
     """Create sample users for testing matches."""
-    creator = User(email="creator@test.com", handle="creator")
-    opponent = User(email="opponent@test.com", handle="opponent")
+    creator = User(email="creator@test.com", handle="creator", display_name="Creator")
+    opponent = User(email="opponent@test.com", handle="opponent", display_name="Opponent")
     
     db_session.add_all([creator, opponent])
     db_session.commit()
@@ -44,6 +44,8 @@ def test_match_creation(db_session, sample_users):
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
     
     db_session.add(match)
@@ -61,6 +63,8 @@ def test_match_relationships(db_session, sample_users):
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
     
     db_session.add(match)
@@ -85,6 +89,8 @@ def test_match_foreign_key_constraints(db_session):
     match = Match(
         creator_id=999,  # Doesn't exist
         opponent_id=888,  # Doesn't exist
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
     
     db_session.add(match)
@@ -103,6 +109,8 @@ def test_user_cannot_play_themselves(db_session, sample_users):
     match = Match(
         creator_id=creator.id,
         opponent_id=creator.id,  # Same user!
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
     
     db_session.add(match)
@@ -119,6 +127,8 @@ def test_match_status_defaults_to_pending(db_session, sample_users):
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
 
     db_session.add(match)
@@ -134,6 +144,8 @@ def test_match_status_can_be_set_explicitly(db_session, sample_users):
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
         status=MatchStatus.DECLINED,
     )
 

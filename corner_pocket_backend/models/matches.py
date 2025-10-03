@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from enum import Enum
 from .base import Base
+from .games import GameType
 
 
 
@@ -25,6 +26,8 @@ class Match(Base):
     id = Column(Integer, primary_key=True)
     creator_id = Column(Integer, ForeignKey("users.id"))  # Who initiated the match
     opponent_id = Column(Integer, ForeignKey("users.id"))  # Who they're playing against
+    game_type = Column(SQLEnum(GameType), nullable=False)
+    race_to = Column(Integer, nullable=False)
     status = Column(
         SQLEnum(MatchStatus),
         nullable=False,

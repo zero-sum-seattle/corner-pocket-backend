@@ -3,15 +3,15 @@ from corner_pocket_backend.services import MatchesDbService
 
 
 def seed_users(session) -> tuple[User, User]:
-    a = User(email="a@test.com", handle="a")
-    b = User(email="b@test.com", handle="b")
+    a = User(email="a@test.com", handle="a", display_name="A")
+    b = User(email="b@test.com", handle="b", display_name="B")
     session.add_all([a, b])
     session.commit()
     return a, b
 
 
 def seed_match_with_games(session, creator: User, opponent: User) -> Match:
-    m = Match(creator_id=creator.id, opponent_id=opponent.id, status=MatchStatus.PENDING)
+    m = Match(creator_id=creator.id, opponent_id=opponent.id, status=MatchStatus.PENDING, game_type=GameType.EIGHT_BALL, race_to=5)
     session.add(m)
     session.commit()
     g1 = Game(match_id=m.id, game_type=GameType.EIGHT_BALL, winner_user_id=creator.id, loser_user_id=opponent.id)
@@ -47,7 +47,7 @@ def test_get_match_includes_games_and_requires_participation(db_session):
     assert len(result["games"]) == 2
 
     # Non-participant cannot fetch
-    outsider = User(email="c@test.com", handle="c")
+    outsider = User(email="c@test.com", handle="c", display_name="C")
     db_session.add(outsider)
     db_session.commit()
     denied = m_svc.get_match(user_id=outsider.id, match_id=m.id)

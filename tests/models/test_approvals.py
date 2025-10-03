@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
-from corner_pocket_backend.models import Base, User, Approval, ApprovalStatus, Match
+from corner_pocket_backend.models import Base, User, Approval, ApprovalStatus, Match, GameType
 
 @pytest.fixture
 def db_session():
@@ -28,8 +28,8 @@ def db_session():
 def sample_users(db_session):
     """Create sample users for testing."""
     users = [
-        User(handle="creator", email="creator@test.com"),
-        User(handle="opponent", email="opponent@test.com"),
+        User(handle="creator", email="creator@test.com", display_name="Creator"),
+        User(handle="opponent", email="opponent@test.com", display_name="Opponent"),
         ]
     db_session.add_all(users)
     db_session.commit()
@@ -44,7 +44,7 @@ def test_approval_status_enum():
 def test_approval_relationships(db_session, sample_users):
     """Test that approval relationships work correctly."""
     creator, opponent = sample_users
-    match = Match(creator_id=creator.id, opponent_id=opponent.id)
+    match = Match(creator_id=creator.id, opponent_id=opponent.id, game_type=GameType.EIGHT_BALL, race_to=5)
     db_session.add(match)
     db_session.commit()
     approval = Approval(match_id=match.id, approver_user_id=opponent.id, status=ApprovalStatus.PENDING)
@@ -57,7 +57,7 @@ def test_approval_relationships(db_session, sample_users):
 def test_approval_status_defaults_to_pending(db_session, sample_users):
     """Approval.status should default to PENDING when not provided."""
     creator, opponent = sample_users
-    match = Match(creator_id=creator.id, opponent_id=opponent.id)
+    match = Match(creator_id=creator.id, opponent_id=opponent.id, game_type=GameType.EIGHT_BALL, race_to=5)
     db_session.add(match)
     db_session.commit()
 
@@ -71,7 +71,7 @@ def test_approval_status_defaults_to_pending(db_session, sample_users):
 def test_approval_one_to_one_uniqueness(db_session, sample_users):
     """Only one Approval row is allowed per Match (unique match_id)."""
     creator, opponent = sample_users
-    match = Match(creator_id=creator.id, opponent_id=opponent.id)
+    match = Match(creator_id=creator.id, opponent_id=opponent.id, game_type=GameType.EIGHT_BALL, race_to=5)
     db_session.add(match)
     db_session.commit()
 
@@ -102,13 +102,13 @@ def test_approval_required_fields(db_session):
 def test_approval_unique_constraints(db_session):
     """Test that approval must be unique per match."""
     # Create users first
-    u1 = User(email="u1@test.com", handle="u1")
-    u2 = User(email="u2@test.com", handle="u2")
+    u1 = User(email="u1@test.com", handle="u1", display_name="User 1")
+    u2 = User(email="u2@test.com", handle="u2", display_name="User 2")
     db_session.add_all([u1, u2])
     db_session.commit()
     
     # Create match
-    match = Match(creator_id=u1.id, opponent_id=u2.id)
+    match = Match(creator_id=u1.id, opponent_id=u2.id, game_type=GameType.EIGHT_BALL, race_to=5)
     db_session.add(match)
     db_session.commit()
     
@@ -125,12 +125,12 @@ def test_approval_unique_constraints(db_session):
 
 def test_approval_note_field(db_session):
     """Test that note field can be set on approval."""
-    u1 = User(email="u1@test.com", handle="u1")
-    u2 = User(email="u2@test.com", handle="u2")
+    u1 = User(email="u1@test.com", handle="u1", display_name="User 1")
+    u2 = User(email="u2@test.com", handle="u2", display_name="User 2")
     db_session.add_all([u1, u2])
     db_session.commit()
     
-    match = Match(creator_id=u1.id, opponent_id=u2.id)
+    match = Match(creator_id=u1.id, opponent_id=u2.id, game_type=GameType.EIGHT_BALL, race_to=5)
     db_session.add(match)
     db_session.commit()
     

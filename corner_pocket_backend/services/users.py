@@ -11,9 +11,9 @@ class UsersDbService:
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, email: str, handle: str) -> User:
+    def create(self, email: str, handle: str, display_name: str) -> User:
         """Create a new user (uncommitted)."""
-        user = User(email=email, handle=handle)
+        user = User(email=email, handle=handle, display_name=display_name)
         self.db.add(user)
         try:
             self.db.flush()
@@ -44,7 +44,7 @@ class UsersDbService:
         self.db.flush()
         return user
     
-    def edit_user(self, user_id: int, email: Optional[str] = None, handle: Optional[str] = None) -> User:
+    def edit_user(self, user_id: int, email: Optional[str] = None, handle: Optional[str] = None, display_name: Optional[str] = None) -> User:
         """Edit a user in the database."""
         user = self.db.get(User, user_id)
         if not user:
@@ -53,6 +53,8 @@ class UsersDbService:
             user.email = email
         if handle is not None:
             user.handle = handle
+        if display_name is not None:
+            user.display_name = display_name
         try:
             self.db.flush()
         except IntegrityError as e:

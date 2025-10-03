@@ -12,6 +12,8 @@ class User(Base):
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True)
+    display_name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)  # For login and contact
     handle = Column(String, unique=True, nullable=False)  # Public display name/username
     created_at = Column(DateTime, default=datetime.utcnow)  # When they joined the hall
+    password_hash = Column(String, nullable=True) # For authentication

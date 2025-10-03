@@ -28,8 +28,8 @@ def db_session():
 @pytest.fixture
 def sample_match(db_session):
     """Create a sample match with users for testing games."""
-    creator = User(email="creator@test.com", handle="creator")
-    opponent = User(email="opponent@test.com", handle="opponent")
+    creator = User(email="creator@test.com", handle="creator", display_name="Creator")
+    opponent = User(email="opponent@test.com", handle="opponent", display_name="Opponent")
     
     db_session.add_all([creator, opponent])
     db_session.commit()
@@ -37,6 +37,8 @@ def sample_match(db_session):
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
     )
     
     db_session.add(match)

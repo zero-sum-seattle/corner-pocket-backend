@@ -21,6 +21,7 @@ def test_user_creation(db_session):
     user = User(
         email="test@poolhall.com",
         handle="pool_shark",
+        display_name="Pool Shark",
     )
     
     db_session.add(user)
@@ -34,8 +35,8 @@ def test_user_creation(db_session):
 
 def test_user_unique_constraints(db_session):
     """Test that email and handle must be unique."""
-    user1 = User(email="test@test.com", handle="player1")
-    user2 = User(email="test@test.com", handle="player2")  # Same email
+    user1 = User(email="test@test.com", handle="player1", display_name="Player 1")
+    user2 = User(email="test@test.com", handle="player2", display_name="Player 2")  # Same email
     
     db_session.add(user1)
     db_session.commit()
@@ -49,8 +50,8 @@ def test_user_unique_constraints(db_session):
 
 def test_user_handle_uniqueness(db_session):
     """Test that handles must be unique."""
-    user1 = User(email="first@test.com", handle="samename")
-    user2 = User(email="second@test.com", handle="samename")  # Same handle
+    user1 = User(email="first@test.com", handle="samename", display_name="First User")
+    user2 = User(email="second@test.com", handle="samename", display_name="Second User")  # Same handle
     
     db_session.add(user1)
     db_session.commit()
@@ -64,7 +65,7 @@ def test_user_handle_uniqueness(db_session):
 def test_user_required_fields(db_session):
     """Test that required fields cannot be None."""
     # Should fail without email
-    user = User(handle="test_handle")
+    user = User(handle="test_handle", display_name="Test User")
     db_session.add(user)
     
     with pytest.raises(Exception):
@@ -73,7 +74,7 @@ def test_user_required_fields(db_session):
 
 def test_user_handle_required(db_session):
     """Test that handle is required (cannot be None)."""
-    user = User(email="nohandle@test.com")
+    user = User(email="nohandle@test.com", display_name="No Handle")
     db_session.add(user)
     with pytest.raises(Exception):
         db_session.commit()
