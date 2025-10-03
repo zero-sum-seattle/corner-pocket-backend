@@ -1,36 +1,61 @@
-from dataclasses import dataclass
 from typing import Optional
-from uuid import uuid4
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
-# NOTE: Replace with real DB impl. This is a stub so routes run.
-USERS = {}
-PASSWORDS = {}
+from corner_pocket_backend.models import User
 
-@dataclass
-class User:
-    id: str
-    email: str
-    handle: str
-    display_name: str
 
-class UsersService:
-    def register(self, email: str, handle: str, display_name: str, password: str) -> None:
-        uid = str(uuid4())
-        USERS[email] = User(id=uid, email=email, handle=handle, display_name=display_name)
-        PASSWORDS[email] = password
+class UsersDbService:
+    """Service for managing users."""
+
+    def __init__(self, db: Session):
+        self.db = db
+
+    def create(self, email: str, handle: str) -> User:
+        """Create a new user (uncommitted)."""
+        user = User(email=email, handle=handle)
+        self.db.add(user)
+        try:
+            self.db.flush()
+        except IntegrityError as e:
+            self.db.rollback()
+            raise ValueError(f"User with this email or handle already exists") from e
+        return user
+
+    def get_by_email(self, email: str) -> Optional[User]:
+        """Get a user by email."""
+        return self.db.query(User).filter(User.email == email).first()
+
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        """Get a user by ID."""
+        return self.db.get(User, user_id)
 
     def authenticate(self, email: str, password: str) -> Optional[User]:
-        if email in USERS and PASSWORDS.get(email) == password:
-            return USERS[email]
-        return None
+        """Authenticate a user (stub - password validation not implemented yet)."""
+        # TODO: implement password hashing and validation
+        return self.get_by_email(email)
 
-    def get_user(self, user_id: str) -> Optional[User]:
-        for u in USERS.values():
-            if u.id == user_id:
-                return u
-        return None
-
-    def require_user(self):
-        # This is wired by core.security.get_current_user in real impl
-        # For now, just return the first user to let you boot UI against it.
-        return next(iter(USERS.values()), None)
+    def delete_user(self, user_id: int) -> User:
+        """Delete a user from the database."""
+        user = self.db.get(User, user_id)
+        if not user:
+            raise ValueError("user not found")
+        self.db.delete(user)
+        self.db.flush()
+        return user
+    
+    def edit_user(self, user_id: int, email: Optional[str] = None, handle: Optional[str] = None) -> User:
+        """Edit a user in the database."""
+        user = self.db.get(User, user_id)
+        if not user:
+            raise ValueError("user not found")
+        if email is not None:
+            user.email = email
+        if handle is not None:
+            user.handle = handle
+        try:
+            self.db.flush()
+        except IntegrityError as e:
+            self.db.rollback()
+            raise ValueError(f"User with this email or handle already exists") from e
+        return user

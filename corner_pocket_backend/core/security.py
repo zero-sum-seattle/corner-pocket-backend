@@ -3,7 +3,6 @@ from jose import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from corner_pocket_backend.core.config import settings
-from corner_pocket_backend.services.users import UsersService
 
 """Security utilities for JWT creation and authentication dependencies.
 

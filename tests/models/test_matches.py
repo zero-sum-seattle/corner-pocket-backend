@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from sqlalchemy import create_engine, SQLEnum as SQLAlchemyEnum
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from corner_pocket_backend.models import Base, User, Match, MatchStatus
 
