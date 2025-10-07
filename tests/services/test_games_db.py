@@ -36,7 +36,7 @@ class TestGamesDbService:
         assert isinstance(g, Game)
         assert g.id is not None
         assert g.match_id == m.id
-        assert g.game_type in (GameType.EIGHT_BALL, GameType.NINE_BALL, GameType.TEN_BALL) or g.game_type is not None
+        assert g.game_type in (GameType.EIGHT_BALL, GameType.NINE_BALL, GameType.TEN_BALL) 
 
     def test_add_game_invalid_match(self, db_session):
         """Test adding a game to an invalid match."""

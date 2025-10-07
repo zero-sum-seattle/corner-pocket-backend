@@ -48,7 +48,7 @@ def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
     uid = data.get("sub")
-    user = UsersDbService().get_user(uid)
+    user = UsersDbService().get_by_id(uid)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid user")
     return user
