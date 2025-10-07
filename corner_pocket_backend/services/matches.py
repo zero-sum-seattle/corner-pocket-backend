@@ -200,6 +200,10 @@ class MatchesDbService:
         if g.match_id != match_id:
             raise ValueError("game does not belong to this match")
         
+        # Validate that winner and loser are different
+        if winner_user_id == loser_user_id:
+            raise ValueError("winner and loser must be different")
+
         # Validate that winner and loser are match participants
         if {winner_user_id, loser_user_id} != {m.creator_id, m.opponent_id}:
             raise ValueError("winner and loser must be match participants")

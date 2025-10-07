@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Enum as SQLEnum
 from enum import Enum
 from datetime import datetime
 from sqlalchemy.orm import relationship
@@ -33,7 +33,7 @@ class Game(Base):
     game_type = Column(SQLEnum(GameType), nullable=False)  # 8-ball, 9-ball, etc.
     winner_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Who sank the money ball
     loser_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Who got schooled
-    created_at = Column(DateTime, default=datetime.utcnow)  # When this rack was completed
+    created_at = Column(DateTime, server_default=func.now())  # When this rack was completed
     frame_number = Column(Integer, nullable=True)  # Which frame this is (can be added later)
 
     match = relationship("Match", back_populates="games")

@@ -59,7 +59,10 @@ def get_current_user(
     try:
         user_id = int(uid)
     except (ValueError, TypeError):
-        raise HTTPException(status_code=401, detail="Invalid user ID format")
+        raise HTTPException(
+            status_code=401, 
+            detail="Token format outdated. Please log in again."
+        )
     
     user_svc = UsersDbService(db=db)
     user = user_svc.get_by_id(user_id)

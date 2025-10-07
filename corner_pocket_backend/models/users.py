@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from datetime import datetime
 from .base import Base
+
 
 class User(Base):
     """A player in the pool hall.
@@ -15,5 +16,5 @@ class User(Base):
     display_name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)  # For login and contact
     handle = Column(String, unique=True, nullable=False)  # Public display name/username
-    created_at = Column(DateTime, default=datetime.utcnow)  # When they joined the hall
+    created_at = Column(DateTime, server_default=func.now())  # When they joined the hall
     password_hash = Column(String, nullable=True) # For authentication
