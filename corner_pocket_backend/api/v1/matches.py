@@ -10,13 +10,13 @@ router = APIRouter()
 
 class MatchCreate(BaseModel):
     """Create a new match with an opponent."""
-    opponent_id: str
+    opponent_id: int
     game_type: GameType
     race_to: Optional[int] = None
 
 class GameAdd(BaseModel):
     """Add a game result to a pending match."""
-    winner_user_id: str
+    winner_user_id: int
 
 @router.post("/matches")
 def create_match(payload: MatchCreate, user=Depends(get_current_user)):
