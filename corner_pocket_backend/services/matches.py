@@ -224,6 +224,8 @@ class MatchesDbService:
             "id": m.id,
             "creator_id": m.creator_id,
             "opponent_id": m.opponent_id,
+            "game_type": m.game_type.value if hasattr(m.game_type, "value") else str(m.game_type),
+            "race_to": m.race_to,
             "status": m.status.value if hasattr(m.status, "value") else str(m.status),
         }
 

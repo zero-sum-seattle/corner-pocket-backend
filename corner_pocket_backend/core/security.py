@@ -2,7 +2,9 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 from corner_pocket_backend.core.config import settings
+from corner_pocket_backend.core.db import get_db
 from corner_pocket_backend.services.users import UsersDbService
 
 """Security utilities for JWT creation and authentication dependencies.
@@ -28,7 +30,10 @@ def create_access_token(payload: dict, expires_minutes: int = 60*24) -> str:
     to_encode["exp"] = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=ALGO)
 
-def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)):
+def get_current_user(
+    creds: HTTPAuthorizationCredentials = Depends(bearer),
+    db: Session = Depends(get_db)
+):
     """Validate the bearer token and return the authenticated user.
 
     This dependency extracts the token from the Authorization header, verifies
@@ -37,9 +42,10 @@ def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)):
 
     Args:
         creds: Parsed Authorization header provided by HTTPBearer.
+        db: Database session injected by FastAPI.
 
     Returns:
-        The authenticated user object from UsersService.
+        The authenticated user object from UsersDbService.
     """
     if not creds:
         raise HTTPException(status_code=401, detail="Not authenticated")
@@ -48,7 +54,15 @@ def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)):
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
     uid = data.get("sub")
-    user = UsersDbService().get_by_id(uid)
+    if not uid:
+        raise HTTPException(status_code=401, detail="Invalid token payload")
+    try:
+        user_id = int(uid)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=401, detail="Invalid user ID format")
+    
+    user_svc = UsersDbService(db=db)
+    user = user_svc.get_by_id(user_id)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid user")
     return user
