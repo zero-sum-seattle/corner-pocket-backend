@@ -44,6 +44,6 @@ class TestGamesDbService:
         a, b, m = self.seed_users_and_match(db_session)
         game_type = GameType.EIGHT_BALL
         with pytest.raises(Exception):
-            g_srv.add_game(user_id=a.id, match_id=9999, winner_user_id=a.id, loser_user_id=b.id, game_type=game_type)
+            g_srv.add_game(match_id=9999, winner_user_id=a.id, loser_user_id=b.id, game_type=game_type)
 
 
