@@ -8,7 +8,6 @@ from typing import List
 from .approvals import Approval
 
 
-
 class MatchStatus(str, Enum):
     """The status of a match."""
 
@@ -29,8 +28,12 @@ class Match(Base):
     __tablename__ = "matches"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    creator_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))  # Who initiated the match
-    opponent_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))  # Who they're playing against
+    creator_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id")
+    )  # Who initiated the match
+    opponent_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id")
+    )  # Who they're playing against
     game_type: Mapped[GameType] = mapped_column(SQLEnum(GameType), nullable=False)
     race_to: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[MatchStatus] = mapped_column(
@@ -42,7 +45,9 @@ class Match(Base):
     # Relationships give you easy access to related objects
     creator: Mapped[User] = relationship("User", foreign_keys=[creator_id])
     opponent: Mapped[User] = relationship("User", foreign_keys=[opponent_id])
-    games: Mapped[List[Game]] = relationship("Game", back_populates="match")  # All racks in this match
+    games: Mapped[List[Game]] = relationship(
+        "Game", back_populates="match"
+    )  # All racks in this match
     approval: Mapped[Approval] = relationship(
         "Approval", back_populates="match", uselist=False
     )  # Approval of the match

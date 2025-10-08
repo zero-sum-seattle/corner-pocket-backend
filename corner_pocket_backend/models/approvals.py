@@ -20,10 +20,14 @@ class Approval(Base):
 
     __tablename__ = "approvals"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    match_id: Mapped[int] = mapped_column(Integer, ForeignKey("matches.id"), nullable=False, unique=True)
+    match_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("matches.id"), nullable=False, unique=True
+    )
     match: Mapped[Match] = relationship("Match", back_populates="approval")
     approver_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     approver: Mapped[User] = relationship("User", foreign_keys=[approver_user_id])
-    status: Mapped[ApprovalStatus] = mapped_column(SQLEnum(ApprovalStatus), nullable=False, default=ApprovalStatus.PENDING)
+    status: Mapped[ApprovalStatus] = mapped_column(
+        SQLEnum(ApprovalStatus), nullable=False, default=ApprovalStatus.PENDING
+    )
     note: Mapped[str] = mapped_column(String)
     decided_at: Mapped[datetime] = mapped_column(DateTime)

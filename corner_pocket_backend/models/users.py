@@ -17,6 +17,10 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     display_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # For login and contact
-    handle: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # Public display name/username
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())  # When they joined the hall
+    handle: Mapped[str] = mapped_column(
+        String, unique=True, nullable=False
+    )  # Public display name/username
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )  # When they joined the hall
     password_hash: Mapped[str] = mapped_column(String, nullable=True)  # For authentication

@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import Base
 from .matches import Match
 
+
 class RaceTo(Enum):
     """Common race-to targets for pool matches."""
 
@@ -38,12 +39,20 @@ class Game(Base):
     match_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("matches.id"), nullable=False
     )  # Which match this belongs to
-    game_type: Mapped[GameType] = mapped_column(SQLEnum(GameType), nullable=False)  # 8-ball, 9-ball, etc.
+    game_type: Mapped[GameType] = mapped_column(
+        SQLEnum(GameType), nullable=False
+    )  # 8-ball, 9-ball, etc.
     winner_user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id"), nullable=False
     )  # Who sank the money ball
-    loser_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)  # Who got schooled
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())  # When this rack was completed
-    frame_number: Mapped[int] = mapped_column(Integer, nullable=True)  # Which frame this is (can be added later)
+    loser_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )  # Who got schooled
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )  # When this rack was completed
+    frame_number: Mapped[int] = mapped_column(
+        Integer, nullable=True
+    )  # Which frame this is (can be added later)
 
     match: Mapped[Match] = relationship("Match", back_populates="games")

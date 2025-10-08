@@ -23,7 +23,7 @@ class GameAdd(BaseModel):
 
 
 @router.post("/matches")
-def create_match(payload: MatchCreate, user: User = Depends(get_current_user)) -> None      :
+def create_match(payload: MatchCreate, user: User = Depends(get_current_user)) -> None:
     """Create a new match with an opponent.
 
     The authenticated user becomes the creator. Supports optional race-to
@@ -34,9 +34,7 @@ def create_match(payload: MatchCreate, user: User = Depends(get_current_user)) -
 
 @router.get("/matches")
 def list_matches(
-    mine: bool = Query(True),
-    status: Optional[str] = None,
-    user: User = Depends(get_current_user)
+    mine: bool = Query(True), status: Optional[str] = None, user: User = Depends(get_current_user)
 ) -> None:
     """List matches, defaulting to those involving the current user.
 
