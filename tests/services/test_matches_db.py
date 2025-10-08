@@ -11,11 +11,27 @@ def seed_users(session) -> tuple[User, User]:
 
 
 def seed_match_with_games(session, creator: User, opponent: User) -> Match:
-    m = Match(creator_id=creator.id, opponent_id=opponent.id, status=MatchStatus.PENDING, game_type=GameType.EIGHT_BALL, race_to=5)
+    m = Match(
+        creator_id=creator.id,
+        opponent_id=opponent.id,
+        status=MatchStatus.PENDING,
+        game_type=GameType.EIGHT_BALL,
+        race_to=5,
+    )
     session.add(m)
     session.commit()
-    g1 = Game(match_id=m.id, game_type=GameType.EIGHT_BALL, winner_user_id=creator.id, loser_user_id=opponent.id)
-    g2 = Game(match_id=m.id, game_type=GameType.NINE_BALL, winner_user_id=opponent.id, loser_user_id=creator.id)
+    g1 = Game(
+        match_id=m.id,
+        game_type=GameType.EIGHT_BALL,
+        winner_user_id=creator.id,
+        loser_user_id=opponent.id,
+    )
+    g2 = Game(
+        match_id=m.id,
+        game_type=GameType.NINE_BALL,
+        winner_user_id=opponent.id,
+        loser_user_id=creator.id,
+    )
     session.add_all([g1, g2])
     session.commit()
     return m
@@ -52,5 +68,3 @@ def test_get_match_includes_games_and_requires_participation(db_session):
     db_session.commit()
     denied = m_svc.get_match(user_id=outsider.id, match_id=m.id)
     assert denied is None
-
-

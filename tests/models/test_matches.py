@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from corner_pocket_backend.models import Base, User, Match, MatchStatus, GameType
@@ -30,27 +29,27 @@ def sample_users(db_session):
     """Create sample users for testing matches."""
     creator = User(email="creator@test.com", handle="creator", display_name="Creator")
     opponent = User(email="opponent@test.com", handle="opponent", display_name="Opponent")
-    
+
     db_session.add_all([creator, opponent])
     db_session.commit()
-    
+
     return creator, opponent
 
 
 def test_match_creation(db_session, sample_users):
     """Test creating a basic match between two users."""
     creator, opponent = sample_users
-    
+
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
         game_type=GameType.EIGHT_BALL,
         race_to=5,
     )
-    
+
     db_session.add(match)
     db_session.commit()
-    
+
     assert match.id is not None
     assert match.creator_id == creator.id
     assert match.opponent_id == opponent.id
@@ -59,17 +58,17 @@ def test_match_creation(db_session, sample_users):
 def test_match_relationships(db_session, sample_users):
     """Test that match relationships work correctly."""
     creator, opponent = sample_users
-    
+
     match = Match(
         creator_id=creator.id,
         opponent_id=opponent.id,
         game_type=GameType.EIGHT_BALL,
         race_to=5,
     )
-    
+
     db_session.add(match)
     db_session.commit()
-    
+
     # Test relationships
     assert match.creator.handle == "creator"
     assert match.opponent.handle == "opponent"
@@ -83,6 +82,7 @@ def test_match_status_enum():
     assert MatchStatus.DECLINED == "DECLINED"
     assert MatchStatus.CANCELLED == "CANCELLED"
 
+
 def test_match_foreign_key_constraints(db_session):
     """Test that foreign key constraints work."""
     # Try to create match with non-existent user IDs
@@ -92,19 +92,18 @@ def test_match_foreign_key_constraints(db_session):
         game_type=GameType.EIGHT_BALL,
         race_to=5,
     )
-    
+
     db_session.add(match)
-    
+
     # Should raise foreign key constraint error
     with pytest.raises(Exception):
         db_session.commit()
-    
 
 
 def test_user_cannot_play_themselves(db_session, sample_users):
     """Test business logic: user shouldn't be able to create match against themselves."""
     creator, _ = sample_users
-    
+
     # This is more of a business logic test - the DB allows it but the app shouldn't
     match = Match(
         creator_id=creator.id,
@@ -112,10 +111,10 @@ def test_user_cannot_play_themselves(db_session, sample_users):
         game_type=GameType.EIGHT_BALL,
         race_to=5,
     )
-    
+
     db_session.add(match)
     db_session.commit()  # DB allows it
-    
+
     # Business logic should prevent this in the service layer
     assert match.creator_id == match.opponent_id  # Shows the issue exists
 

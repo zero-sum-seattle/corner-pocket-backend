@@ -36,7 +36,7 @@ class TestGamesDbService:
         assert isinstance(g, Game)
         assert g.id is not None
         assert g.match_id == m.id
-        assert g.game_type in (GameType.EIGHT_BALL, GameType.NINE_BALL, GameType.TEN_BALL) 
+        assert g.game_type in (GameType.EIGHT_BALL, GameType.NINE_BALL, GameType.TEN_BALL)
 
     def test_add_game_invalid_match(self, db_session):
         """Test adding a game to an invalid match."""
@@ -44,6 +44,6 @@ class TestGamesDbService:
         a, b, m = self.seed_users_and_match(db_session)
         game_type = GameType.EIGHT_BALL
         with pytest.raises(Exception):
-            g_srv.add_game(match_id=9999, winner_user_id=a.id, loser_user_id=b.id, game_type=game_type)
-
-
+            g_srv.add_game(
+                match_id=9999, winner_user_id=a.id, loser_user_id=b.id, game_type=game_type
+            )
