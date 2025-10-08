@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from sqlalchemy import Integer, String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
@@ -23,4 +24,4 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now()
     )  # When they joined the hall
-    password_hash: Mapped[str] = mapped_column(String, nullable=True)  # For authentication
+    password_hash: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # For authentication

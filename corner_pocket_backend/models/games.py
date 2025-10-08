@@ -1,9 +1,12 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import Integer, DateTime, ForeignKey, func, Enum as SQLEnum
 from enum import Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import Base
-from .matches import Match
+
+if TYPE_CHECKING:
+    from .matches import Match
 
 
 class RaceTo(Enum):
@@ -51,8 +54,8 @@ class Game(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now()
     )  # When this rack was completed
-    frame_number: Mapped[int] = mapped_column(
+    frame_number: Mapped[Optional[int]] = mapped_column(
         Integer, nullable=True
     )  # Which frame this is (can be added later)
 
-    match: Mapped[Match] = relationship("Match", back_populates="games")
+    match: Mapped["Match"] = relationship("Match", back_populates="games")

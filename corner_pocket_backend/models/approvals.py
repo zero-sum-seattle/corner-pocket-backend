@@ -1,10 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import Integer, String, DateTime, ForeignKey, Enum as SQLEnum
 from enum import Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .base import Base
-from .matches import Match
-from .users import User
+
+if TYPE_CHECKING:
+    from .matches import Match
+    from .users import User
 
 
 class ApprovalStatus(str, Enum):
@@ -23,11 +26,11 @@ class Approval(Base):
     match_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("matches.id"), nullable=False, unique=True
     )
-    match: Mapped[Match] = relationship("Match", back_populates="approval")
+    match: Mapped["Match"] = relationship("Match", back_populates="approval")
     approver_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    approver: Mapped[User] = relationship("User", foreign_keys=[approver_user_id])
+    approver: Mapped["User"] = relationship("User", foreign_keys=[approver_user_id])
     status: Mapped[ApprovalStatus] = mapped_column(
         SQLEnum(ApprovalStatus), nullable=False, default=ApprovalStatus.PENDING
     )
-    note: Mapped[str] = mapped_column(String)
-    decided_at: Mapped[datetime] = mapped_column(DateTime)
+    note: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    decided_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

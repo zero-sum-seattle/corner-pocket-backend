@@ -1,11 +1,14 @@
+from typing import TYPE_CHECKING, List
 from sqlalchemy import Integer, ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from enum import Enum
 from .base import Base
-from .games import GameType, Game
-from .users import User
-from typing import List
-from .approvals import Approval
+from .games import GameType
+
+if TYPE_CHECKING:
+    from .games import Game
+    from .users import User
+    from .approvals import Approval
 
 
 class MatchStatus(str, Enum):
@@ -43,11 +46,11 @@ class Match(Base):
     )  # Status of the match
 
     # Relationships give you easy access to related objects
-    creator: Mapped[User] = relationship("User", foreign_keys=[creator_id])
-    opponent: Mapped[User] = relationship("User", foreign_keys=[opponent_id])
-    games: Mapped[List[Game]] = relationship(
+    creator: Mapped["User"] = relationship("User", foreign_keys=[creator_id])
+    opponent: Mapped["User"] = relationship("User", foreign_keys=[opponent_id])
+    games: Mapped[List["Game"]] = relationship(
         "Game", back_populates="match"
     )  # All racks in this match
-    approval: Mapped[Approval] = relationship(
+    approval: Mapped["Approval"] = relationship(
         "Approval", back_populates="match", uselist=False
     )  # Approval of the match
