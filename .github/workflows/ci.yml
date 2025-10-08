@@ -24,10 +24,9 @@ jobs:
         run: pip install poetry==1.8.3
       - name: Install deps
         run: poetry install
-      # We'll address these later in a new issue
-      # - name: Ruff
-        # run: poetry run ruff check .
-      # - name: Mypy
-        # run: poetry run mypy corner_pocket_backend
+      - name: Ruff
+        run: poetry run ruff check .
+      - name: Mypy
+        run: poetry run mypy corner_pocket_backend
       - name: Tests
         run: poetry run pytest -q
