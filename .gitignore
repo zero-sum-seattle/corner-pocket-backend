@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+.poetry/
+dist/
+build/
+.coverage
+htmlcov/
+.pytest_cache/
+alembic/versions/*.pyc
