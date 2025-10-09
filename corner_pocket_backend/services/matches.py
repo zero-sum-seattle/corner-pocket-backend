@@ -2,7 +2,7 @@ from typing import List, Optional, Dict, Any
 
 from sqlalchemy.orm import Session
 
-from corner_pocket_backend.models import Match, Game, User, MatchStatus, GameType
+from corner_pocket_backend.models import Match, Game, MatchStatus, GameType
 from corner_pocket_backend.services.games import GamesDbService
 
 
@@ -37,7 +37,11 @@ class MatchesDbService:
         q = self.db.query(Match)
         if creator_id is not None and opponent_id is not None:
             if game_type is not None:
-                q = q.filter((Match.creator_id == creator_id) & (Match.opponent_id == opponent_id) & (Match.game_type == game_type))
+                q = q.filter(
+                    (Match.creator_id == creator_id)
+                    & (Match.opponent_id == opponent_id)
+                    & (Match.game_type == game_type)
+                )
             else:
                 q = q.filter((Match.creator_id == creator_id) | (Match.opponent_id == opponent_id))
         if game_type is not None:
@@ -61,14 +65,11 @@ class MatchesDbService:
             return None
         if user_id not in (m.creator_id, m.opponent_id):
             return None
-        
+
         result = self._serialize_match(m)
         # attach games
         games: List[Game] = (
-            self.db.query(Game)
-            .filter(Game.match_id == m.id)
-            .order_by(Game.id.asc())
-            .all()
+            self.db.query(Game).filter(Game.match_id == m.id).order_by(Game.id.asc()).all()
         )
         result["games"] = [
             {
@@ -85,14 +86,20 @@ class MatchesDbService:
 
     def add_match(self, user_id: int, opponent_id: int, game_type: GameType, race_to: int) -> Match:
         """Add a new match to the database."""
-        new_m = Match(creator_id=user_id, opponent_id=opponent_id, game_type=game_type, race_to=race_to, status=MatchStatus.PENDING)
+        new_m = Match(
+            creator_id=user_id,
+            opponent_id=opponent_id,
+            game_type=game_type,
+            race_to=race_to,
+            status=MatchStatus.PENDING,
+        )
         self.db.add(new_m)
         self.db.flush()
         return new_m
 
     def delete_match(self, user_id: int, match_id: int) -> Match:
         """Delete a match from the database.
-        
+
         Raises:
             ValueError: If match not found.
             PermissionError: If user is not a participant.
@@ -105,17 +112,17 @@ class MatchesDbService:
         self.db.delete(m)
         self.db.flush()
         return m
-    
+
     def add_game(
-        self, 
-        match_id: int, 
-        winner_user_id: int, 
-        loser_user_id: int, 
-        game_type: GameType, 
-        acting_user_id: int
+        self,
+        match_id: int,
+        winner_user_id: int,
+        loser_user_id: int,
+        game_type: GameType,
+        acting_user_id: int,
     ) -> Game:
         """Append a game result to a pending match.
-        
+
         Raises:
             ValueError: If match not found, not PENDING, or invalid game data.
             PermissionError: If acting user is not a participant.
@@ -127,79 +134,84 @@ class MatchesDbService:
             raise PermissionError("not a participant")
         if m.status != MatchStatus.PENDING:
             raise ValueError("cannot add games unless match is PENDING")
-        
+
         # Validate that winner and loser are match participants
         if {winner_user_id, loser_user_id} != {m.creator_id, m.opponent_id}:
             raise ValueError("winner and loser must be match participants")
-        
+
         return self.game_svc.add_game(
             match_id=m.id,
             winner_user_id=winner_user_id,
             loser_user_id=loser_user_id,
             game_type=game_type,
         )
-    
 
-    def add_games(self, user_id: int, match_id: int, games: List[Game]):
+    def add_games(self, user_id: int, match_id: int, games: List[Game]) -> List[Game]:
         """Append a list of game results to a pending match."""
         gs = []
         for game in games:
             gs.append(
-                self.add_game(match_id=match_id, winner_user_id=game.winner_user_id, loser_user_id=game.loser_user_id, game_type=game.game_type, acting_user_id=user_id)
+                self.add_game(
+                    match_id=match_id,
+                    winner_user_id=game.winner_user_id,
+                    loser_user_id=game.loser_user_id,
+                    game_type=game.game_type,
+                    acting_user_id=user_id,
+                )
             )
-        
+
         return gs
-    
+
     def delete_game(self, match_id: int, acting_user_id: int, game_id: int) -> None:
         """Delete a game from the database.
-        
+
         Raises:
             ValueError: If match or game not found.
             PermissionError: If user is not a participant in the match.
         """
         m = self._query_match(match_id)
-        
+
         if acting_user_id not in (m.creator_id, m.opponent_id):
             raise PermissionError("not a participant")
-        
+
         g = self.db.query(Game).filter(Game.id == game_id).first()
         if not g:
             raise ValueError("game not found")
         if g.match_id != match_id:
             raise ValueError("game does not belong to this match")
-        
+
         self.game_svc.delete_game(game_id=game_id)
-    
+
     def delete_games(self, match_id: int, acting_user_id: int, game_ids: List[int]) -> None:
         """Delete a list of games from the database."""
         for game_id in game_ids:
             self.delete_game(match_id=match_id, acting_user_id=acting_user_id, game_id=game_id)
-    
+
     def edit_game(
-        self, 
-        match_id: int, 
-        acting_user_id: int, 
-        game_id: int, 
-        winner_user_id: int, 
-        loser_user_id: int
+        self,
+        match_id: int,
+        acting_user_id: int,
+        game_id: int,
+        winner_user_id: int,
+        loser_user_id: int,
     ) -> Game:
         """Edit a game in the database.
-        
+
         Raises:
             ValueError: If match or game not found.
             PermissionError: If user is not a participant in the match.
         """
         m = self._query_match(match_id)
-        
+
         if acting_user_id not in (m.creator_id, m.opponent_id):
             raise PermissionError("not a participant")
-        
+
         g = self.db.query(Game).filter(Game.id == game_id).first()
         if not g:
             raise ValueError("game not found")
         if g.match_id != match_id:
             raise ValueError("game does not belong to this match")
-        
+
         # Validate that winner and loser are different
         if winner_user_id == loser_user_id:
             raise ValueError("winner and loser must be different")
@@ -207,13 +219,11 @@ class MatchesDbService:
         # Validate that winner and loser are match participants
         if {winner_user_id, loser_user_id} != {m.creator_id, m.opponent_id}:
             raise ValueError("winner and loser must be match participants")
-        
+
         return self.game_svc.edit_game(
-            game_id=game_id, 
-            winner_user_id=winner_user_id, 
-            loser_user_id=loser_user_id
+            game_id=game_id, winner_user_id=winner_user_id, loser_user_id=loser_user_id
         )
-    
+
     def edit_match(self, user_id: int, match_id: int, status: MatchStatus) -> Match:
         """Edit a match (e.g., update status)."""
         m = self._query_match(match_id)
@@ -235,7 +245,7 @@ class MatchesDbService:
 
     def _query_match(self, match_id: int) -> Match:
         """Helper to fetch and validate match existence.
-        
+
         Raises:
             ValueError: If match not found.
         """
@@ -243,4 +253,3 @@ class MatchesDbService:
         if not m:
             raise ValueError("match not found")
         return m
- 

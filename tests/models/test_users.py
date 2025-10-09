@@ -23,10 +23,10 @@ def test_user_creation(db_session):
         handle="pool_shark",
         display_name="Pool Shark",
     )
-    
+
     db_session.add(user)
     db_session.commit()
-    
+
     assert user.id is not None
     assert user.email == "test@poolhall.com"
     assert user.handle == "pool_shark"
@@ -37,12 +37,12 @@ def test_user_unique_constraints(db_session):
     """Test that email and handle must be unique."""
     user1 = User(email="test@test.com", handle="player1", display_name="Player 1")
     user2 = User(email="test@test.com", handle="player2", display_name="Player 2")  # Same email
-    
+
     db_session.add(user1)
     db_session.commit()
-    
+
     db_session.add(user2)
-    
+
     # Should raise an integrity error due to unique constraint
     with pytest.raises(Exception):  # SQLAlchemy will raise IntegrityError
         db_session.commit()
@@ -51,13 +51,15 @@ def test_user_unique_constraints(db_session):
 def test_user_handle_uniqueness(db_session):
     """Test that handles must be unique."""
     user1 = User(email="first@test.com", handle="samename", display_name="First User")
-    user2 = User(email="second@test.com", handle="samename", display_name="Second User")  # Same handle
-    
+    user2 = User(
+        email="second@test.com", handle="samename", display_name="Second User"
+    )  # Same handle
+
     db_session.add(user1)
     db_session.commit()
-    
+
     db_session.add(user2)
-    
+
     with pytest.raises(Exception):
         db_session.commit()
 
@@ -67,7 +69,7 @@ def test_user_required_fields(db_session):
     # Should fail without email
     user = User(handle="test_handle", display_name="Test User")
     db_session.add(user)
-    
+
     with pytest.raises(Exception):
         db_session.commit()
 

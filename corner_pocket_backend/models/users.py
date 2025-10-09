@@ -1,20 +1,29 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from datetime import datetime
+from typing import Optional
+from sqlalchemy import Integer, String, DateTime, func
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 
 
 class User(Base):
     """A player in the pool hall.
-    
+
     Represents someone who can challenge others to matches, track their
     wins/losses, and generally hustle around the virtual felt. Each user
     has a unique email and handle for identification.
     """
+
     __tablename__ = "users"
-    
-    id = Column(Integer, primary_key=True)
-    display_name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)  # For login and contact
-    handle = Column(String, unique=True, nullable=False)  # Public display name/username
-    created_at = Column(DateTime, server_default=func.now())  # When they joined the hall
-    password_hash = Column(String, nullable=True) # For authentication
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # For login and contact
+    handle: Mapped[str] = mapped_column(
+        String, unique=True, nullable=False
+    )  # Public display name/username
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now()
+    )  # When they joined the hall
+    password_hash: Mapped[Optional[str]] = mapped_column(
+        String, nullable=True
+    )  # For authentication

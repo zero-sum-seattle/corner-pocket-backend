@@ -19,7 +19,7 @@ class UsersDbService:
             self.db.flush()
         except IntegrityError as e:
             self.db.rollback()
-            raise ValueError(f"User with this email or handle already exists") from e
+            raise ValueError("User with this email or handle already exists") from e
         return user
 
     def get_by_email(self, email: str) -> Optional[User]:
@@ -43,8 +43,14 @@ class UsersDbService:
         self.db.delete(user)
         self.db.flush()
         return user
-    
-    def edit_user(self, user_id: int, email: Optional[str] = None, handle: Optional[str] = None, display_name: Optional[str] = None) -> User:
+
+    def edit_user(
+        self,
+        user_id: int,
+        email: Optional[str] = None,
+        handle: Optional[str] = None,
+        display_name: Optional[str] = None,
+    ) -> User:
         """Edit a user in the database."""
         user = self.db.get(User, user_id)
         if not user:
@@ -59,5 +65,5 @@ class UsersDbService:
             self.db.flush()
         except IntegrityError as e:
             self.db.rollback()
-            raise ValueError(f"User with this email or handle already exists") from e
+            raise ValueError("User with this email or handle already exists") from e
         return user

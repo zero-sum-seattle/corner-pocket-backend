@@ -30,5 +30,3 @@ class TestUsersDbService:
         # Duplicate handle should fail
         with pytest.raises(Exception):
             svc.create(email="other@test.com", handle="dup1", display_name="Other")
-
-

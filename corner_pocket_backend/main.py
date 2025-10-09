@@ -1,3 +1,4 @@
+from typing import Dict
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from corner_pocket_backend.core.config import settings
@@ -13,9 +14,11 @@ corner_pocket_backend.add_middleware(
     allow_headers=["*"],
 )
 
+
 @corner_pocket_backend.get("/health")
-def health():
+def health() -> Dict[str, bool]:
     """Basic liveness probe used for smoke tests and container healthchecks."""
     return {"ok": True}
+
 
 corner_pocket_backend.include_router(api_router, prefix="/api/v1")
