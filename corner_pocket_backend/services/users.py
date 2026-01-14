@@ -75,9 +75,6 @@ class UsersDbService:
 
         Returns:
             The User if credentials are valid, None otherwise.
-
-        Note:
-            Currently a stub - password validation not implemented yet.
         """
         user = self.get_by_email(email)
         if not user:
