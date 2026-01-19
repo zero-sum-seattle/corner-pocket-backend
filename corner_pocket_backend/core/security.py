@@ -89,7 +89,13 @@ def verify_token(token: str, token_type: Optional[str] = None) -> Dict[str, Any]
     Returns:
         The payload of the verified token.
     """
-    data = jwt.decode(token, settings.JWT_SECRET, algorithms=[ALGO])
+    data = jwt.decode(
+        token,
+        settings.JWT_SECRET,
+        algorithms=[ALGO],
+        audience=TOKEN_AUDIENCE,
+        issuer=TOKEN_ISSUER,
+    )
     if token_type and data.get("token_type") != token_type:
         raise HTTPException(status_code=401, detail="Invalid token type")
     return data
