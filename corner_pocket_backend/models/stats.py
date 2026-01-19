@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING
-from sqlalchemy import Integer, DateTime, func, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Integer, DateTime, func, ForeignKey, Enum as SQLEnum, Index, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 from .games import GameType
@@ -17,6 +17,21 @@ class Stat(Base):
     """
 
     __tablename__ = "stats"
+    __table_args__ = (
+        Index(
+            "uq_stats_all_time",
+            "user_id", "game_type",
+            unique=True,
+            postgresql_where=text("period_start IS NULL AND period_end IS NULL"),
+        ),
+        Index(
+            "uq_stats_period",
+            "user_id", "game_type", "period_start", "period_end",
+            unique=True,
+            postgresql_where=text("period_start IS NOT NULL AND period_end IS NOT NULL"),
+        )
+        
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
