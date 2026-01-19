@@ -4,8 +4,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 from corner_pocket_backend.services.users import UsersDbService
-from corner_pocket_backend.core.security import create_access_token
+from corner_pocket_backend.core.security import create_access_token, create_refresh_token
 from corner_pocket_backend.core.password import get_password_hash
+from corner_pocket_backend.services.security import SecurityDbService
 
 
 class TestRegister:
@@ -134,8 +135,6 @@ class TestLogin:
             display_name="Test User",
             password_hash=password_hash,
         )
-        # TODO: Once password hashing is implemented, set password properly
-        # For now, this will test the flow
         db_session.commit()
 
         response = client.post(
@@ -146,16 +145,17 @@ class TestLogin:
             },
         )
 
-        # This will likely fail until authenticate() is properly implemented
-        # but shows the expected behavior
-        if response.status_code == 200:
-            data = response.json()
-            assert "access_token" in data
-            assert "user_id" in data
-            assert isinstance(data["user_id"], int)
-            assert data["token_type"] == "bearer"
-            assert isinstance(data["access_token"], str)
-            assert len(data["access_token"]) > 0
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert "user_id" in data
+        assert isinstance(data["user_id"], int)
+        assert data["token_type"] == "bearer"
+        assert isinstance(data["access_token"], str)
+        assert len(data["access_token"]) > 0
+        assert "refresh_token" in data
+        assert isinstance(data["refresh_token"], str)
+        assert len(data["refresh_token"]) > 0
 
     def test_login_invalid_email(self, client: TestClient):
         """Test login fails with non-existent email."""
@@ -222,10 +222,10 @@ class TestMe:
         )
         db_session.commit()
 
-        # Generate a valid token
+        # Generate a valid access token
         token = create_access_token({"sub": str(user.id)})
 
-        # Request with token
+        # Request with access token
         response = client.get(
             "/api/v1/auth/me",
             headers={"Authorization": f"Bearer {token}"},
@@ -325,7 +325,21 @@ class TestAuthFlow:
             },
         )
 
+
+        assert login_response.status_code == 200
+        data = login_response.json()
+        assert "access_token" in data
+        assert "user_id" in data
+        assert isinstance(data["user_id"], int)
+        assert data["token_type"] == "bearer"
+        assert isinstance(data["access_token"], str)
+        assert len(data["access_token"]) > 0
+        assert "refresh_token" in data
+        assert isinstance(data["refresh_token"], str)
+        assert len(data["refresh_token"]) > 0
         # This may fail until authenticate() is fully implemented
+
+
         if login_response.status_code == 200:
             token = login_response.json()["access_token"]
 
@@ -336,3 +350,33 @@ class TestAuthFlow:
             )
             assert me_response.status_code == 200
             assert me_response.json()["email"] == "newuser@example.com"
+
+class TestRefresh:
+
+    def test_refresh_success(self, client: TestClient, db_session: Session):
+        """Test successful refresh of access token."""
+        # Create a user
+        user_service = UsersDbService(db_session)
+        password_hash = get_password_hash("password123")
+        user = user_service.create(
+            email="test@example.com",
+            handle="testuser",
+            display_name="Test User",
+            password_hash=password_hash,
+        )
+        db_session.commit()
+
+        # Generate a valid token
+        refresh_token = create_refresh_token({"sub": str(user.id)})
+        security_db_service = SecurityDbService(db_session)
+        security_db_service.store_refresh_token(user_id=user.id, token_hash=refresh_token)
+
+        # Request with token
+        response = client.post(
+            "/api/v1/auth/refresh",
+            json={"refresh_token": refresh_token},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert "refresh_token" in data
