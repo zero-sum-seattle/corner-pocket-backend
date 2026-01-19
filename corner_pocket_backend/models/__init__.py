@@ -5,6 +5,7 @@ from .games import Game, GameType, RaceTo
 from .base import Base
 from .approvals import Approval, ApprovalStatus
 from .security import RefreshToken
+from .stats import Stat
 
 __all__ = [
     "User",
@@ -17,4 +18,5 @@ __all__ = [
     "Approval",
     "ApprovalStatus",
     "RefreshToken",
+    "Stat",
 ]

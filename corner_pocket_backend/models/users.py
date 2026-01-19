@@ -1,8 +1,11 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, TYPE_CHECKING
 from sqlalchemy import Integer, String, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
+
+if TYPE_CHECKING:
+    from .stats import Stat
 
 
 class User(Base):
@@ -27,3 +30,6 @@ class User(Base):
     password_hash: Mapped[Optional[str]] = mapped_column(
         String, nullable=True
     )  # For authentication
+    stats: Mapped[List["Stat"]] = relationship(
+        "Stat", back_populates="user", cascade="all, delete-orphan"
+    )

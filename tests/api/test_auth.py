@@ -325,7 +325,6 @@ class TestAuthFlow:
             },
         )
 
-
         assert login_response.status_code == 200
         data = login_response.json()
         assert "access_token" in data
@@ -339,7 +338,6 @@ class TestAuthFlow:
         assert len(data["refresh_token"]) > 0
         # This may fail until authenticate() is fully implemented
 
-
         if login_response.status_code == 200:
             token = login_response.json()["access_token"]
 
@@ -351,8 +349,8 @@ class TestAuthFlow:
             assert me_response.status_code == 200
             assert me_response.json()["email"] == "newuser@example.com"
 
-class TestRefresh:
 
+class TestRefresh:
     def test_refresh_success(self, client: TestClient, db_session: Session):
         """Test successful refresh of access token."""
         # Create a user
