@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, List
-from sqlalchemy import Integer, ForeignKey, String, DateTime, func,Enum as SQLEnum
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from typing import Optional
+from sqlalchemy import Integer, ForeignKey, String, DateTime, func
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 from datetime import datetime
-
-
-
 
 
 class RefreshToken(Base):
@@ -15,5 +12,7 @@ class RefreshToken(Base):
     token_hash: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
-    expired_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), onupdate=func.now()
+    )
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
