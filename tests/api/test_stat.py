@@ -40,7 +40,7 @@ class TestStats:
         svc = StatsDbService(db=db_session)
 
         stat1 = svc.create_stat(user_id=create_user.id, game_type=GameType.EIGHT_BALL)
-        stat2 = svc.create_stat(user_id=create_user.id, game_type=GameType.NINE_BALL) # noqa: F841
+        stat2 = svc.create_stat(user_id=create_user.id, game_type=GameType.NINE_BALL)  # noqa: F841
 
         response = client.get(
             f"/api/v1/stats/summary/{GameType.EIGHT_BALL.value}",
