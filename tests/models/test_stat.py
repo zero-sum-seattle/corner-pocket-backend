@@ -57,14 +57,35 @@ def test_stat_unique_constraints(db_session):
     db_session.add(user)
     db_session.commit()
 
-    stat = Stat(user_id=user.id, game_type=GameType.EIGHT_BALL, period_start=None, period_end=None, matches_played=0, wins=0, losses=0, racks_won=0, racks_lost=0)
+    stat = Stat(
+        user_id=user.id,
+        game_type=GameType.EIGHT_BALL,
+        period_start=None,
+        period_end=None,
+        matches_played=0,
+        wins=0,
+        losses=0,
+        racks_won=0,
+        racks_lost=0,
+    )
     db_session.add(stat)
     db_session.commit()
 
-    stat2 = Stat(user_id=user.id, game_type=GameType.EIGHT_BALL, period_start=None, period_end=None, matches_played=0, wins=0, losses=0, racks_won=0, racks_lost=0)
+    stat2 = Stat(
+        user_id=user.id,
+        game_type=GameType.EIGHT_BALL,
+        period_start=None,
+        period_end=None,
+        matches_played=0,
+        wins=0,
+        losses=0,
+        racks_won=0,
+        racks_lost=0,
+    )
     db_session.add(stat2)
     with pytest.raises(IntegrityError):
         db_session.commit()
+
 
 def test_stat_period_constraints(db_session):
     """Test that stat must be unique per user and game type."""
@@ -72,11 +93,31 @@ def test_stat_period_constraints(db_session):
     db_session.add(user)
     db_session.commit()
 
-    stat = Stat(user_id=user.id, game_type=GameType.EIGHT_BALL, period_start=datetime.now(), period_end=datetime.now(), matches_played=0, wins=0, losses=0, racks_won=0, racks_lost=0)
+    stat = Stat(
+        user_id=user.id,
+        game_type=GameType.EIGHT_BALL,
+        period_start=datetime.now(),
+        period_end=datetime.now(),
+        matches_played=0,
+        wins=0,
+        losses=0,
+        racks_won=0,
+        racks_lost=0,
+    )
     db_session.add(stat)
     db_session.commit()
 
-    stat2 = Stat(user_id=user.id, game_type=GameType.EIGHT_BALL, period_start=datetime.now(), period_end=datetime.now(), matches_played=0, wins=0, losses=0, racks_won=0, racks_lost=0)
+    stat2 = Stat(
+        user_id=user.id,
+        game_type=GameType.EIGHT_BALL,
+        period_start=datetime.now(),
+        period_end=datetime.now(),
+        matches_played=0,
+        wins=0,
+        losses=0,
+        racks_won=0,
+        racks_lost=0,
+    )
     db_session.add(stat2)
     with pytest.raises(IntegrityError):
         db_session.commit()

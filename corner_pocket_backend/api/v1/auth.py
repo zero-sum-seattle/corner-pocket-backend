@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from corner_pocket_backend.core.security import (
     get_current_user,
@@ -11,37 +10,10 @@ from corner_pocket_backend.models.users import User
 from corner_pocket_backend.services.users import UsersDbService
 from corner_pocket_backend.services.security import SecurityDbService
 from corner_pocket_backend.core.db import get_db
-from datetime import datetime
 from typing import Any
+from corner_pocket_backend.schemas.auth import RegisterIn, LoginIn, UserOut, RefreshIn
 
 router = APIRouter()
-
-
-class RegisterIn(BaseModel):
-    email: EmailStr
-    handle: str
-    display_name: str
-    password: str
-
-
-class LoginIn(BaseModel):
-    email: str
-    password: str
-
-
-class UserOut(BaseModel):
-    id: int
-    email: EmailStr
-    handle: str
-    display_name: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class RefreshIn(BaseModel):
-    refresh_token: str
 
 
 @router.post("/auth/register")

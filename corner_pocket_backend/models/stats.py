@@ -20,17 +20,20 @@ class Stat(Base):
     __table_args__ = (
         Index(
             "uq_stats_all_time",
-            "user_id", "game_type",
+            "user_id",
+            "game_type",
             unique=True,
             postgresql_where=text("period_start IS NULL AND period_end IS NULL"),
         ),
         Index(
             "uq_stats_period",
-            "user_id", "game_type", "period_start", "period_end",
+            "user_id",
+            "game_type",
+            "period_start",
+            "period_end",
             unique=True,
             postgresql_where=text("period_start IS NOT NULL AND period_end IS NOT NULL"),
-        )
-        
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
