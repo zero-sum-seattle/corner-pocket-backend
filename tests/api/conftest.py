@@ -7,6 +7,8 @@ from sqlalchemy.pool import StaticPool
 from corner_pocket_backend.main import corner_pocket_backend
 from corner_pocket_backend.models import Base  # Import models to register with Base
 from corner_pocket_backend.core.db import get_db
+from corner_pocket_backend.models.users import User
+from corner_pocket_backend.core.password import get_password_hash
 
 
 @pytest.fixture
@@ -53,3 +55,29 @@ def client(db_session: Session):
         yield test_client
 
     corner_pocket_backend.dependency_overrides.clear()
+
+
+@pytest.fixture
+def create_user(db_session: Session):
+    """Create a user and return the user object."""
+    password = "securepassword123"
+    user = User(
+        email="test@example.com",
+        handle="testuser",
+        display_name="Test User",
+        password_hash=get_password_hash(password),
+    )
+    db_session.add(user)
+    db_session.commit()
+    return user
+
+
+@pytest.fixture
+def login_user(client: TestClient, create_user: User):
+    """Login a user and return the access token."""
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": create_user.email, "password": "securepassword123"},
+    )
+    assert response.status_code == 200
+    return response.json()["access_token"]

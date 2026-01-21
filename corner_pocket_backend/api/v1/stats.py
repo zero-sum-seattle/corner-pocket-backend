@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-from pydantic.exceptions import ValidationError
+from pydantic import ValidationError
 
 from corner_pocket_backend.core.db import get_db
 from corner_pocket_backend.core.security import get_current_user
@@ -97,9 +96,7 @@ def summary_all_by_game_type(
     for administrative/preview purposes.
     """
     try:
-        stats = StatsDbService(db).get_stats_by_game_type(
-            game_type=game_type, user_id=user_id
-        )
+        stats = StatsDbService(db).get_stats_by_game_type(game_type=game_type, user_id=user_id)
         return [StatOut.model_validate(stat) for stat in stats]
     except CornerPocketError as e:
         raise HTTPException(status_code=500, detail=str(e))
