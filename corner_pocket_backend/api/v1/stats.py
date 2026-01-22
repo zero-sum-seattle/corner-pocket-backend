@@ -35,31 +35,6 @@ def summary(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/stats/summary/{game_type}", response_model=list[StatOut])
-def summary_by_game_type(
-    game_type: GameType,
-    user_id: int | None = Query(None, description="The user ID to fetch stats for"),
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> list[StatOut]:
-    """Return a simple summary of results for a user by game type.
-
-    Defaults to the current user. Another user's id may be supplied by query
-    for administrative/preview purposes.
-    """
-    target_user_id = user_id or user.id
-
-    try:
-        stats = StatsDbService(db).get_stats_by_game_type(
-            game_type=game_type, user_id=target_user_id
-        )
-        return [StatOut.model_validate(stat) for stat in stats]
-    except CornerPocketError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    except ValidationError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
 @router.get("/stats/summary/all", response_model=list[StatOut])
 def summary_all(
     user_id: int | None = Query(None, description="Optional user ID to filter stats"),
@@ -97,6 +72,31 @@ def summary_all_by_game_type(
     """
     try:
         stats = StatsDbService(db).get_stats_by_game_type(game_type=game_type, user_id=user_id)
+        return [StatOut.model_validate(stat) for stat in stats]
+    except CornerPocketError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except ValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/stats/summary/{game_type}", response_model=list[StatOut])
+def summary_by_game_type(
+    game_type: GameType,
+    user_id: int | None = Query(None, description="The user ID to fetch stats for"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[StatOut]:
+    """Return a simple summary of results for a user by game type.
+
+    Defaults to the current user. Another user's id may be supplied by query
+    for administrative/preview purposes.
+    """
+    target_user_id = user_id or user.id
+
+    try:
+        stats = StatsDbService(db).get_stats_by_game_type(
+            game_type=game_type, user_id=target_user_id
+        )
         return [StatOut.model_validate(stat) for stat in stats]
     except CornerPocketError as e:
         raise HTTPException(status_code=500, detail=str(e))

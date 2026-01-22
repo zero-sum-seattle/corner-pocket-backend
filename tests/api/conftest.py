@@ -58,13 +58,14 @@ def client(db_session: Session):
 
 
 @pytest.fixture
-def create_user(db_session: Session):
+def create_user(
+    db_session: Session, username: str = "testuser", password: str = "securepassword123"
+):
     """Create a user and return the user object."""
-    password = "securepassword123"
     user = User(
-        email="test@example.com",
-        handle="testuser",
-        display_name="Test User",
+        email=f"{username}@example.com",
+        handle=username,
+        display_name=f"Test User {username}",
         password_hash=get_password_hash(password),
     )
     db_session.add(user)
